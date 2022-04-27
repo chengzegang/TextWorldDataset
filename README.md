@@ -9,7 +9,7 @@ All files were generated using **`generate.py`**, so you may want to take a look
 ## Format
 There are at least 10000 game states in each **`game_walks_*.json`** file, and each walk-through is structured as a list of states, and each state contains four properties: description, previous action, valid action and complete knowledge graph. Below is a fabricated example:
     
-```json
+``` python
 game_walk[0][0] = {
     'obs': 'This is a desciption',
     'prev_action': 'exam the box',
