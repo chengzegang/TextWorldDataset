@@ -56,25 +56,41 @@ def walk_thr(walks_per_game=10, max_walk=200):
 
     if not os.path.exists('game_walks'):
         os.mkdir('game_walks')
+    
+    desc_file = None
+    if not os.path.exists('desc.json'):
+        with open('desc.json', 'w+') as jsonfile:
+            json.dump({'finished':[]}, jsonfile)
+  
+    with open('desc.json', 'r') as jsonfile:
+        desc_file = json.load(jsonfile)
+    
+    finished = set(desc_file['finished'])
 
     walks = []
-    games = [join('my_games', f, 'game.ulx') for f in listdir('my_games')]
+    broken_game = []
+    games = [(f, join('my_games', f, 'game.ulx')) for f in listdir('my_games') if f not in finished and f not in broken_game]
     count = 0
     length = 0
-    for g in (pbar := tqdm(games)):
-        if length > 10000:
-            game_walks_file = os.path.join('game_walks', 'game_walks_' + str(count) + '.json')
-            with open(game_walks_file, 'w') as file:
-                json.dump(walks, file)
-                pbar.set_description("file saved: " + str(count + 1))
-            count += 1
-            walks = []
-            length = 0
-            gc.collect()
+    for id, g in (pbar := tqdm(games)):
+        pbar.set_description("file saved: " + str(count) + "; current file: " + id)
         for i in range(walks_per_game):
             walk = one_walk_thr(g, max_walk)
             length += len(walk)
             walks.append(walk)
+        game_walks_file = os.path.join('game_walks', 'game_walks_' + id + '.json')
+        with open(game_walks_file, 'w') as file:
+            json.dump(walks, file)
+            pbar.set_description("file saved: " + str(count + 1) + "; current file: " + id)
+        count += 1
+        walks = []
+        length = 0
+        gc.collect()
+        finished.add(id)
+        with open('desc.json', 'w') as jsonfile:
+            json.dump({'finished':list(finished)}, jsonfile)
+  
+        
 
     game_walks_file = os.path.join('game_walks', 'game_walks_' + str(count) + '.json')
     with open(game_walks_file, 'w') as file:
