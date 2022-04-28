@@ -78,6 +78,13 @@ def walk_thr(walks_per_game=10, max_walk=200):
     
     finished = set(desc_file['finished'])
 
+    for file in os.listdir('game_walks'):
+        file_basename = os.path.basename(file)
+        game_id = file_basename.split('_')[2]
+        if game_id not in finished:
+            finished.add(game_id)
+    
+
     walks = []
     broken_game = ['1196862928', '517879001', '2494778704', '3864721294', '808678209'] # program freezes when running on these
     games = [(f, join('my_games', f, 'game.ulx')) for f in listdir('my_games') if f not in finished and f not in broken_game and os.path.isdir('my_games/' + f)]
