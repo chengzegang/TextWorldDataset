@@ -1,3 +1,6 @@
 my_games/
 game_walks/
 .DS_Store
+fix.py
+test.py
+desc.json
