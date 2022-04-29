@@ -12,7 +12,8 @@ import gc
 import re
 
 def generate_game(n_games=100):
-
+    if not os.path.exists('textworld_custom_games'):
+        os.mkdir('textworld_custom_games')
     generated = 0
     while generated < n_games:
         seed = np.random.randint(2 ** 32 - 1)
@@ -20,7 +21,7 @@ def generate_game(n_games=100):
         quest_length = np.random.randint(10, 30)
         n_object = np.random.randint(50, 100)
         print('generating....')
-        os.system(f'tw-make custom --world-size {world_size} --quest-length {quest_length} --nb-objects {n_object} --output my_games/{seed}/game.ulx -f -v --seed {seed}')
+        os.system(f'tw-make custom --world-size {world_size} --quest-length {quest_length} --nb-objects {n_object} --output textworld_custom_games/{seed}/game.ulx -f -v --seed {seed}')
         generated += 1
 
 
@@ -65,8 +66,8 @@ def info2graph(infos):
 
 def walk_thr(walks_per_game=10, max_walk=200):
 
-    if not os.path.exists('game_walks'):
-        os.mkdir('game_walks')
+    if not os.path.exists('textworld_game_walks'):
+        os.mkdir('textworld_game_walks')
     
     desc_file = None
     if not os.path.exists('desc.json'):
@@ -87,7 +88,7 @@ def walk_thr(walks_per_game=10, max_walk=200):
 
     walks = []
     broken_game = ['1196862928', '517879001', '2494778704', '3864721294', '808678209'] # program freezes when running on these
-    games = [(f, join('my_games', f, 'game.ulx')) for f in listdir('my_games') if f not in finished and f not in broken_game and os.path.isdir('my_games/' + f)]
+    games = [(f, join('textworld_custom_games', f, 'game.ulx')) for f in listdir('my_games') if f not in finished and f not in broken_game and os.path.isdir('my_games/' + f)]
     count = 0
     length = 0
     for id, g in (pbar := tqdm(games)):
@@ -96,7 +97,7 @@ def walk_thr(walks_per_game=10, max_walk=200):
             walk = one_walk_thr(g, max_walk)
             length += len(walk)
             walks.append(walk)
-        game_walks_file = os.path.join('game_walks', 'game_walks_' + id + '.json')
+        game_walks_file = os.path.join('textworld_game_walks', 'game_walks_' + id + '.json')
         with open(game_walks_file, 'w') as file:
             json.dump(walks, file)
             pbar.set_description("file saved: " + str(count + 1) + "; current game: " + id)
@@ -110,7 +111,7 @@ def walk_thr(walks_per_game=10, max_walk=200):
   
         
 
-    game_walks_file = os.path.join('game_walks', 'game_walks_' + str(count) + '.json')
+    game_walks_file = os.path.join('textworld_game_walks', 'game_walks_' + str(count) + '.json')
     with open(game_walks_file, 'w') as file:
         json.dump(walks, file)
         print('complete!')
@@ -173,11 +174,11 @@ def one_walk_thr(game_dir, max_walk=200):
     return walk
 
 def unzip_games():
-    if not os.path.exists('my_games'):
-        os.mkdir('my_games')
+    if not os.path.exists('textworld_custom_games'):
+        os.mkdir('textworld_custom_games')
 
-    with zipfile.ZipFile('my_games.zip', 'r') as zip_ref:
-        zip_ref.extractall('my_games')
+    with zipfile.ZipFile('textworld_custom_games.zip', 'r') as zip_ref:
+        zip_ref.extractall('textworld_custom_games')
 
 def main():
     gc.enable()
